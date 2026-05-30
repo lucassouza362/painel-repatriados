@@ -189,20 +189,12 @@ input.fsel{padding:4px 8px;border:0.5px solid #ddd;border-radius:8px;font-size:1
 
 <script>
 // ── Dados ────────────────────────────────────────────────
-var DADOS_URL = 'https://raw.githubusercontent.com/lucassouza362/painel-repatriados/main/dados.json';
-var pessoas = [];
+// DADOS EMBUTIDOS — substitua o conteúdo de DADOS abaixo ao atualizar
+var DADOS = {"atualizado": "", "pessoas": []};
+var pessoas = DADOS.pessoas || [];
 var activeTags = {bo:false, prot:false, hpr:false};
-
-fetch(DADOS_URL + '?t=' + Date.now())
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    pessoas = d.pessoas || [];
-    document.getElementById('ultimaAtt').textContent = d.atualizado ? 'Atualizado em: ' + d.atualizado : '';
-    aplicar();
-  })
-  .catch(function(){
-    document.getElementById('grid').innerHTML = '<div class="empty">Erro ao carregar dados. Verifique o arquivo dados.json.</div>';
-  });
+if(DADOS.atualizado) document.getElementById('ultimaAtt').textContent = 'Atualizado em: ' + DADOS.atualizado;
+aplicar();
 
 // ── Filtros ──────────────────────────────────────────────
 function aplicar(){
