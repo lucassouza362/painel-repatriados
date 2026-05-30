@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel de Repatriados</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,Arial,sans-serif}
+body{background:#f5f5f3;min-height:100vh}
+header{background:#1a1a1a;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;flex-wrap:wrap;gap:8px}
+header h1{color:#fff;font-size:15px;font-weight:600}
+.search{padding:6px 12px;border:none;border-radius:7px;font-size:13px;width:200px;outline:none;background:#f5f5f3}
+.stats{display:flex;gap:10px;padding:10px 20px;background:#fff;border-bottom:1px solid #eee;flex-wrap:wrap}
+.stat{border-radius:8px;padding:6px 14px;min-width:100px}
+.stat strong{font-size:18px;font-weight:700;display:block}
+.stat span{font-size:11px}
+.s1{background:#E6F1FB}.s1 strong{color:#1a1a1a}.s1 span{color:#555}
+.s2{background:#EAF3DE}.s2 strong{color:#3B6D11}.s2 span{color:#3B6D11}
+.s3{background:#FAEEDA}.s3 strong{color:#633806}.s3 span{color:#633806}
+.s4{background:#FCEBEB}.s4 strong{color:#A32D2D}.s4 span{color:#A32D2D}
+.s5{background:#F8D7DA}.s5 strong{color:#842029}.s5 span{color:#842029}
+.s6{background:#EAF3DE}.s6 strong{color:#3B6D11}.s6 span{color:#3B6D11}
+.s7{background:#E6F1FB}.s7 strong{color:#0C447C}.s7 span{color:#0C447C}
+.filtros{display:flex;gap:8px;padding:8px 20px;background:#fff;border-bottom:1px solid #eee;flex-wrap:wrap;align-items:center}
+.filtro-grupo{display:flex;align-items:center;gap:5px}
+.filtro-label{font-size:11px;color:#888;white-space:nowrap}
+.sep{color:#ddd}
+select.fsel{padding:4px 8px;border:0.5px solid #ddd;border-radius:8px;font-size:12px;outline:none;background:#fff;cursor:pointer}
+input.fsel{padding:4px 8px;border:0.5px solid #ddd;border-radius:8px;font-size:12px;outline:none;background:#fff;width:60px}
+.tag-filter{padding:3px 10px;border:0.5px solid #ddd;border-radius:20px;font-size:11px;cursor:pointer;background:#fff;color:#555;transition:all .15s}
+.tag-filter:hover{border-color:#888}
+.tag-filter.active-bo{background:#FCEBEB;color:#A32D2D;border-color:#A32D2D;font-weight:600}
+.tag-filter.active-prot{background:#F8D7DA;color:#842029;border-color:#842029;font-weight:600}
+.tag-filter.active-hpr{background:#F8D7DA;color:#842029;border-color:#842029;font-weight:600}
+.fbtn{padding:4px 12px;border:0.5px solid #ddd;border-radius:20px;font-size:12px;cursor:pointer;background:#fff;color:#333}
+.progress-wrap{background:#fff;padding:6px 20px;border-bottom:1px solid #eee}
+.progress-info{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:3px}
+.progress-bar{height:5px;background:#eee;border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:#3B6D11;border-radius:10px;transition:width .3s}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;flex-wrap:wrap;gap:8px}
+.ts{font-size:12px;color:#888}
+.ultima{font-size:11px;color:#aaa}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:0 20px 20px}
+.card{background:#fff;border:0.5px solid #ddd;border-radius:10px;padding:12px 14px;position:relative;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:#aaa}
+.card.prot{border-top:3px solid #A32D2D}
+.top{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.av{width:34px;height:34px;border-radius:50%;background:#E6F1FB;color:#0C447C;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.av.hpr{background:#F8D7DA;color:#842029}
+.info{flex:1;min-width:0}
+.nm{font-size:13px;font-weight:600;line-height:1.3}
+.sub{font-size:11px;color:#888;margin-top:1px}
+.data-chegada{font-size:10px;color:#aaa;margin-top:1px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.tag{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.tag-loc{background:#F0F0EE;color:#444}
+.tag-quarto{background:#E6F1FB;color:#0C447C;font-weight:600}
+.tag-bo{background:#FCEBEB;color:#A32D2D;font-weight:600}
+.tag-prot{background:#F8D7DA;color:#842029;font-weight:600}
+.tag-pos{background:#EAF3DE;color:#3B6D11;font-weight:600}
+.tag-hpr{background:#F8D7DA;color:#842029;font-weight:600}
+.obs-box{background:#FFFBF0;border:0.5px solid #F0E0A0;border-radius:6px;padding:5px 8px;font-size:11px;color:#555;margin-top:4px}
+.forms-row{margin-top:8px;border-top:0.5px solid #f0f0f0;padding-top:8px}
+.forms-grid{display:flex;flex-wrap:wrap;gap:3px}
+.fitem{display:flex;align-items:center;gap:3px;font-size:10px;padding:2px 6px;border-radius:10px;border:0.5px solid #eee}
+.fitem.ok{background:#EAF3DE;border-color:#C0DD97;color:#3B6D11}
+.fitem.nok{background:#f5f5f3;color:#aaa}
+.empty{text-align:center;padding:40px;color:#aaa;font-size:14px;grid-column:1/-1}
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;align-items:center;justify-content:center}
+.popup-overlay.open{display:flex}
+.popup{background:#fff;border-radius:14px;width:420px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.popup-header{background:#1a1a1a;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;border-radius:14px 14px 0 0}
+.popup-header h2{color:#fff;font-size:16px;font-weight:600;margin:0}
+.popup-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:.7;line-height:1}
+.popup-close:hover{opacity:1}
+.popup-foto{background:#f5f5f3;padding:24px 0 20px;display:flex;justify-content:center;border-bottom:1px solid #eee}
+.popup-img{width:140px;height:140px;object-fit:cover;border-radius:50%;border:3px solid #eee}
+.sem-foto{width:140px;height:140px;border-radius:50%;border:3px solid #eee;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:44px}
+.popup-body{padding:16px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.popup-field{display:flex;flex-direction:column;gap:3px}
+.popup-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.popup-value{font-size:14px;font-weight:500;color:#1a1a1a}
+.popup-value.ev{color:#ccc;font-weight:400;font-style:italic}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Painel de Repatriados</h1>
+  <input class="search" type="text" placeholder="Buscar por nome..." oninput="aplicar()">
+</header>
+
+<div class="stats">
+  <div class="stat s1"><strong id="stTotal">—</strong><span>Pessoas</span></div>
+  <div class="stat s2"><strong id="stReg">—</strong><span>Registro</span></div>
+  <div class="stat s3"><strong id="stReint">—</strong><span>Reintegração</span></div>
+  <div class="stat s7"><strong id="stPass">—</strong><span>Passagem</span></div>
+  <div class="stat s4"><strong id="stProt">—</strong><span>Proteção</span></div>
+  <div class="stat s5"><strong id="stBO">—</strong><span>BO</span></div>
+  <div class="stat s6"><strong id="stQuarto">—</strong><span>Com quarto</span></div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="progTxt">Carregando...</span>
+    <span id="progPct"></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div class="filtros">
+  <div class="filtro-grupo"><span class="filtro-label">Formulário:</span>
+    <select class="fsel" id="fForm" onchange="aplicar()">
+      <option value="">Todos</option>
+      <option value="registro-sim">Registro ✓</option>
+      <option value="registro-nao">Registro ✗</option>
+      <option value="checkbr-sim">Check-in BR ✓</option>
+      <option value="checkbr-nao">Check-in BR ✗</option>
+      <option value="reint-sim">Reintegração ✓</option>
+      <option value="reint-nao">Reintegração ✗</option>
+    </select>
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Desligamento:</span>
+    <select class="fsel" id="fDeslig" onchange="aplicar()">
+      <option value="">Todos</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Transporte:</span>
+    <select class="fsel" id="fTransp" onchange="aplicar()">
+      <option value="">Todos</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Passagem:</span>
+    <select class="fsel" id="fPass" onchange="aplicar()">
+      <option value="">Todos</option>
+      <option value="sim">Sim</option>
+      <option value="nao">Não</option>
+    </select>
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Perfil:</span>
+    <select class="fsel" id="fCompleto" onchange="aplicar()">
+      <option value="">Todos</option>
+      <option value="1">✓ Completo</option>
+      <option value="0">✗ Incompleto</option>
+    </select>
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Quarto:</span>
+    <input class="fsel" type="text" id="fQuarto" placeholder="ex: 508" oninput="aplicar()">
+  </div>
+  <span class="sep">|</span>
+  <div class="filtro-grupo"><span class="filtro-label">Tags:</span>
+    <button class="tag-filter" id="tf-bo" onclick="toggleTag(this,'bo')">BO</button>
+    <button class="tag-filter" id="tf-prot" onclick="toggleTag(this,'prot')">Proteção</button>
+    <button class="tag-filter" id="tf-hpr" onclick="toggleTag(this,'hpr')">HPR</button>
+  </div>
+  <span class="sep">|</span>
+  <button class="fbtn" onclick="limparFiltros()">Limpar</button>
+</div>
+
+<div class="toolbar">
+  <span class="ts" id="cnt">—</span>
+  <span class="ultima" id="ultimaAtt"></span>
+</div>
+
+<div class="grid" id="grid">
+  <div class="empty">Carregando dados...</div>
+</div>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay" onclick="fecharPopup(event)">
+  <div class="popup">
+    <div class="popup-header">
+      <h2 id="popupNome"></h2>
+      <button class="popup-close" onclick="fecharPopupBtn()">&#215;</button>
+    </div>
+    <div id="popupFoto"></div>
+    <div class="popup-body" id="popupBody"></div>
+  </div>
+</div>
+
+<script>
+// ── Dados ────────────────────────────────────────────────
+var DADOS_URL = 'dados.json';
+var pessoas = [];
+var activeTags = {bo:false, prot:false, hpr:false};
+
+fetch(DADOS_URL + '?t=' + Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    pessoas = d.pessoas || [];
+    document.getElementById('ultimaAtt').textContent = d.atualizado ? 'Atualizado em: ' + d.atualizado : '';
+    aplicar();
+  })
+  .catch(function(){
+    document.getElementById('grid').innerHTML = '<div class="empty">Erro ao carregar dados. Verifique o arquivo dados.json.</div>';
+  });
+
+// ── Filtros ──────────────────────────────────────────────
+function aplicar(){
+  var q = document.querySelector('.search').value.toLowerCase().trim();
+  var fF = document.getElementById('fForm').value;
+  var fD = document.getElementById('fDeslig').value;
+  var fT = document.getElementById('fTransp').value;
+  var fPa = document.getElementById('fPass').value;
+  var fC = document.getElementById('fCompleto').value;
+  var fQ = document.getElementById('fQuarto').value.trim().toLowerCase();
+
+  var visiveis = pessoas.filter(function(p){
+    if(q && p.nome.toLowerCase().indexOf(q) < 0) return false;
+    if(fD && p.deslig !== fD) return false;
+    if(fT && p.transp !== fT) return false;
+    if(fPa && p.pass !== fPa) return false;
+    if(fC && p.completo !== fC) return false;
+    if(fQ && (!p.quarto || p.quarto.toLowerCase().indexOf(fQ) < 0)) return false;
+    if(fF){
+      var pts = fF.split('-'), fn = pts[0], fv = pts[1];
+      var am = {registro:p.registro, checkbr:p.checkbr, reint:p.reint};
+      if(am[fn] !== fv) return false;
+    }
+    if(activeTags.bo && p.bo !== 'sim') return false;
+    if(activeTags.prot && p.prot !== 'sim') return false;
+    if(activeTags.hpr && p.ident !== 'hpr') return false;
+    return true;
+  });
+
+  renderCards(visiveis);
+  atualizarStats(visiveis);
+}
+
+function toggleTag(btn, tag){
+  activeTags[tag] = !activeTags[tag];
+  btn.className = activeTags[tag] ? 'tag-filter active-' + tag : 'tag-filter';
+  aplicar();
+}
+
+function limparFiltros(){
+  ['fForm','fDeslig','fTransp','fPass','fCompleto'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('fQuarto').value = '';
+  document.querySelector('.search').value = '';
+  Object.keys(activeTags).forEach(function(k){ activeTags[k]=false; });
+  document.querySelectorAll('.tag-filter').forEach(function(b){ b.className='tag-filter'; });
+  aplicar();
+}
+
+// ── Stats ────────────────────────────────────────────────
+function atualizarStats(vis){
+  var n=vis.length, reg=0, rei=0, pas=0, prt=0, bo=0, qt=0, comp=0;
+  vis.forEach(function(p){
+    if(p.registro==='sim') reg++;
+    if(p.reint==='sim') rei++;
+    if(p.pass==='sim') pas++;
+    if(p.prot==='sim') prt++;
+    if(p.bo==='sim') bo++;
+    if(p.quarto && p.quarto.toLowerCase()!=='n/a') qt++;
+    if(p.completo==='1') comp++;
+  });
+  document.getElementById('stTotal').textContent = n;
+  document.getElementById('stReg').textContent = reg;
+  document.getElementById('stReint').textContent = rei;
+  document.getElementById('stPass').textContent = pas;
+  document.getElementById('stProt').textContent = prt;
+  document.getElementById('stBO').textContent = bo;
+  document.getElementById('stQuarto').textContent = qt;
+  document.getElementById('cnt').textContent = n + ' pessoa(s)';
+  var pct = n > 0 ? Math.round(comp*100/n) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progTxt').textContent = comp + ' de ' + n + ' pessoas com perfil completo';
+}
+
+// ── Cards ────────────────────────────────────────────────
+function iniciais(nome){
+  return nome.split(' ').filter(Boolean).slice(0,2).map(function(w){ return w[0].toUpperCase(); }).join('');
+}
+
+function renderCards(lista){
+  var grid = document.getElementById('grid');
+  if(!lista.length){
+    grid.innerHTML = '<div class="empty">Nenhuma pessoa encontrada.</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(function(p){
+    var isProt = p.prot === 'sim';
+    var isHPR = p.ident === 'hpr';
+    var cls = 'card' + (isProt?' prot':'');
+    var avCls = 'av' + (isHPR?' hpr':'');
+    var loc = [p.estado, p.municipio].filter(Boolean).join(' &middot; ');
+    var sub = [p.idade ? p.idade+' anos' : '', p.genero].filter(Boolean).join(' &middot; ');
+    var forms = [
+      {n:'BO', v:p.bo},
+      {n:'Deslig.', v:p.deslig},
+      {n:'Check-in BR', v:p.checkbr},
+      {n:'Registro', v:p.registro},
+      {n:'Passagem', v:p.pass},
+      {n:'Reint.', v:p.reint},
+      {n:'Transp.', v:p.transp}
+    ];
+    return '<div class="'+cls+'" onclick="abrirPopup(this)" '+
+      'data-nome="'+p.nome.toLowerCase()+'" '+
+      'data-deslig="'+(p.deslig||'')+'" data-prot="'+(p.prot||'')+'" '+
+      'data-ident="'+(p.ident||'')+'" data-pass="'+(p.pass||'')+'" '+
+      'data-bo="'+(p.bo||'')+'" data-checkbr="'+(p.checkbr||'')+'" '+
+      'data-registro="'+(p.registro||'')+'" data-reint="'+(p.reint||'')+'" '+
+      'data-transp="'+(p.transp||'')+'" data-nforms="'+(p.nforms||0)+'" '+
+      'data-completo="'+(p.completo||'0')+'" data-quarto="'+(p.quarto||'')+'" '+
+      'data-estdest="'+(p.estDest||'')+'" data-ciddest="'+(p.cidDest||'')+'" '+
+      'data-saidahotel="'+(p.saidaHotel||'')+'" data-saidabh="'+(p.saidaBH||'')+'" '+
+      'data-idade="'+(p.idade||'')+'" data-dtnasc="'+(p.dtNasc||'')+'" '+
+      'data-genero="'+(p.genero||'')+'" data-nacion="'+(p.nacion||'')+'" '+
+      'data-foto="'+(p.foto||'')+'">'+
+      '<div class="top"><div class="'+avCls+'">'+iniciais(p.nome)+'</div>'+
+      '<div class="info"><div class="nm">'+p.nome+'</div>'+
+      (sub?'<div class="sub">'+sub+'</div>':'')+
+      (p.dataChegada?'<div class="data-chegada">&#128197; '+p.dataChegada+'</div>':'')+
+      '</div></div>'+
+      '<div class="tags">'+
+      (loc?'<span class="tag tag-loc">&#128205; '+loc+'</span>':'')+
+      (p.quarto&&p.quarto.toLowerCase()!=='n/a'?'<span class="tag tag-quarto">&#128701; Quarto '+p.quarto+'</span>':'')+
+      (p.bo==='sim'?'<span class="tag tag-bo">&#9888; BO</span>':'')+
+      (isProt?'<span class="tag tag-prot">&#128737; Proteção</span>':'')+
+      (isHPR?'<span class="tag tag-hpr">&#9888; HPR</span>':(p.ident==='positivo'?'<span class="tag tag-pos">&#10003; Positivo</span>':''))+
+      '</div>'+
+      (p.obs?'<div class="obs-box">&#128221; '+p.obs+'</div>':'')+
+      '<div class="forms-row"><div class="forms-grid">'+
+      forms.map(function(f){
+        var ok = f.v==='sim';
+        return '<span class="fitem'+(ok?' ok':' nok')+'"><span>'+(ok?'✓':'✗')+'</span>'+f.n+'</span>';
+      }).join('')+
+      '</div></div></div>';
+  }).join('');
+}
+
+// ── Popup ────────────────────────────────────────────────
+function abrirPopup(card){
+  var d = card.dataset;
+  document.getElementById('popupNome').textContent = card.querySelector('.nm').textContent;
+  var fu = d.foto && d.foto.trim() ? d.foto.trim() : null;
+  document.getElementById('popupFoto').innerHTML = fu
+    ? '<div class="popup-foto"><img class="popup-img" src="'+fu+'" onerror="this.parentNode.innerHTML='<div class=popup-foto><div class=sem-foto>&#128247;</div></div>'"></div>'
+    : '<div class="popup-foto"><div class="sem-foto">&#128247;</div></div>';
+  var campos = [
+    ['Estado de Destino', d.estdest],
+    ['Cidade de Destino', d.ciddest],
+    ['Idade', d.idade],
+    ['Data de Nasc.', d.dtnasc],
+    ['Gênero', d.genero],
+    ['Nacionalidade', d.nacion],
+    ['Saída Hotel', d.saidahotel],
+    ['Saída BH', d.saidabh]
+  ];
+  var html = '';
+  campos.forEach(function(f){
+    var v = f[1] && f[1].trim() ? f[1].trim() : '—';
+    var ev = v==='—' ? ' ev' : '';
+    html += '<div class="popup-field"><div class="popup-label">'+f[0]+'</div><div class="popup-value'+ev+'">'+v+'</div></div>';
+  });
+  document.getElementById('popupBody').innerHTML = html;
+  document.getElementById('popupOverlay').classList.add('open');
+}
+function fecharPopup(e){ if(e.target.id==='popupOverlay') fecharPopupBtn(); }
+function fecharPopupBtn(){ document.getElementById('popupOverlay').classList.remove('open'); }
+</script>
+</body>
+</html>
