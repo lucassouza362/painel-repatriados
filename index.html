@@ -189,12 +189,21 @@ input.fsel{padding:4px 8px;border:0.5px solid #ddd;border-radius:8px;font-size:1
 
 <script>
 // ── Dados ────────────────────────────────────────────────
-// DADOS EMBUTIDOS — substitua o conteúdo de DADOS abaixo ao atualizar
-var DADOS = {"atualizado": "", "pessoas": []};
-var pessoas = DADOS.pessoas || [];
+// ── Dados via jsDelivr (CORS habilitado) ─────────────────
+var DADOS_URL = 'https://cdn.jsdelivr.net/gh/lucassouza362/painel-repatriados@main/dados.json';
+var pessoas = [];
 var activeTags = {bo:false, prot:false, hpr:false};
-if(DADOS.atualizado) document.getElementById('ultimaAtt').textContent = 'Atualizado em: ' + DADOS.atualizado;
-aplicar();
+
+fetch(DADOS_URL + '?t=' + Date.now())
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    pessoas = d.pessoas || [];
+    document.getElementById('ultimaAtt').textContent = d.atualizado ? 'Atualizado em: ' + d.atualizado : '';
+    aplicar();
+  })
+  .catch(function(e){
+    document.getElementById('grid').innerHTML = '<div class="empty">Erro ao carregar dados.<br>' + e + '</div>';
+  });
 
 // ── Filtros ──────────────────────────────────────────────
 function aplicar(){
